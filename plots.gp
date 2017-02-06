@@ -286,6 +286,52 @@ set output
 set terminal x11
 
 
+###############################################################################
+### Difficult Stuff
+###############################################################################
+
+set term epslatex size 10cm,10cm
+set output "my-plot.tex"
+set xlabel "Deviation, $\\Delta x$ [cm]"
+set ylabel "Number of points, $N$ [1]"
+plot[-15:15][0:55] \
+    "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                   smooth frequency w boxes \
+                   lt 1 lc rgb "forest-green" \
+                   title "Measured", \
+    gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
+             title "$A\\cdot\\exp\\left(\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$ fit"
+set output
+set terminal x11
+
+exit 0
+
+set term epslatex size 10cm,10cm
+set output "my-plot.tex"
+set xlabel "Deviation, $\\Delta x$ [cm]"
+set ylabel "Number of points, $N$ [1]"
+set key width -7.5 height 0.5 spacing 1.5 box   # Adjust the spacing between lines
+                                                # and put titles into a box.
+set object 1 rectangle from 4,37.5 to 14.1,44 front
+set label 1   "$\\mu = " . sprintf("%.1f", mu) \
+            . "\\pm " . sprintf("%.1f", mu_err) . "$" \
+	    at 4.2,42 front
+set label 2   "$\\sigma = " . sprintf("%.1f", sigma) \
+            . "\\pm " . sprintf("%.1f", sigma_err) . "$" \
+	    at 4.2,39 front
+plot[-15:15][0:55] "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                                  smooth frequency w boxes \
+                                  lt 1 lc rgb "forest-green" \
+                                  title "Measured", \
+                   gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
+                            title "$A\\cdot\\exp\\left(\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$ fit"
+unset object 1
+unset label 1
+unset label 2
+set output
+set terminal x11
+
+
 exit 0
 
 set multiplot layout 1, 2

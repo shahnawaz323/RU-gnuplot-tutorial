@@ -12,7 +12,7 @@ From the homepage, `Gnuplot` is a
 
 
 This is how `Gnuplot` start screen looks on my machine:
-```c
+```
 tom@wheelhorse:~$ gnuplot
 
 	G N U P L O T
@@ -30,7 +30,7 @@ Terminal type set to 'x11'
 gnuplot> 
 ```
 
-It's just like `Python` shell: type in your command, press `ENTER`, and
+It's just like `gp` shell: type in your command, press `ENTER`, and
 your command gets executed!
 
 First of all, here are some useful commands:
@@ -48,7 +48,7 @@ From `help plot`:
 > functions and data;
 
 #### Syntax
-```c
+```
 plot  [<ranges>]
       [<iteration>]
       <function> | <datafile> [datafile-modifiers]
@@ -58,7 +58,7 @@ plot  [<ranges>]
 
 -------------------------------------------------------------------------------
 
-```python
+```gp
 gnuplot> plot sin(x)
 ```
 ![](images/sin_first_plot.png)
@@ -71,21 +71,21 @@ From `help ranges`:
 > the graph that will be displayed.  These override any ranges established by a
 > previous `set range` statement.
 
-```python
+```gp
 gnuplot> plot[0:2] sin(x)
 ```
 ![](images/sin_ranges_1.png)
 
 -------------------------------------------------------------------------------
 
-```python
+```gp
 gnuplot> plot[0:2][-2:3] sin(x)
 ```
 ![](images/sin_ranges_2.png)
 
 -------------------------------------------------------------------------------
 
-```python
+```gp
 gnuplot> plot[0:] sin(x)
 ```
 ![](images/sin_ranges_3.png)
@@ -97,14 +97,14 @@ From `help function`:
 > Built-in or user-defined functions can be displayed by the `plot` and `splot`
 > commands in addition to, or instead of, data read from a file. 
 
-```python
+```gp
 gnuplot> plot[0:4] cos(2 * x) * cos(50 * x) * exp(-x), exp(-x), -exp(-x)
 ```
 ![](images/functions_1.png)
 
 -------------------------------------------------------------------------------
 
-```python
+```gp
 gnuplot> foo(x) = (x - 2) * (x - 1) * x * (x + 1) * (x + 2)
 gnuplot> bar(x) = 1 / (x + 0.5) - 1
 gnuplot> plot[-3:3][-3:3] foo(x), bar(x)
@@ -122,7 +122,7 @@ From `help plot title`:
 > file name. You can give an explicit plot title instead using the `title` 
 > option.
 
-```python
+```gp
 gnuplot> plot[0:pi][-1:2] sin(x) title "Hello world!", \
                           2 * x title "", \
                           1 / sqrt(x) notitle
@@ -130,7 +130,7 @@ gnuplot> plot[0:pi][-1:2] sin(x) title "Hello world!", \
 ![](images/titles_1.png)
 
 Notice the `pi` in xrange -- `Gnuplot` has it predefined.
-```python
+```gp
 gnuplot> print pi
 3.14159265358979
 ```
@@ -143,7 +143,7 @@ left horizontally and in the center vertically; `set key center bottom` --
 in the center horizontally and at the bottom vertically. The default is
 `set key right top`. For more, see `help set key`.
 
-```python
+```gp
 gnuplot> set key right bottom
 gnuplot> plot x + sin(x) title "set key right bottom"
 ```
@@ -164,10 +164,10 @@ From `help datafile`:
 > the data file (enclosed in single or double quotes) on the `plot` command line.
 
 `Gnuplot` supports both text and binary files. Text files must consist of one or
-more columns separated by `TAB`s. Just like in `Python` a hashtag `#` starts a
+more columns separated by `TAB`s. Just like in `gp` a hashtag `#` starts a
 comment. It is common practice to give files of such format the `.dat` extension.
 
-```python
+```gp
 # datafile.dat
 #
 ###############################################
@@ -191,7 +191,7 @@ comment. It is common practice to give files of such format the `.dat` extension
 9	0.001953125
 ```
 
-```python
+```gp
 ! python3 -c \
 'for x in range(10): \
     print("{}\t{}".format(x, 2**-x)) \
@@ -203,7 +203,7 @@ plot[-1:10][-0.2:1.2] "datafile.dat" title "Calculated 2^-^x"
 
 -------------------------------------------------------------------------------
 
-```python
+```gp
 ! python3 -c \
 'for x in range(1,10): \
     print("{:.2e}\t{:.2e}\t{:.2e}" .format(x, 2**-x, 1./x)) \
@@ -220,7 +220,7 @@ and `<N2>` is the "y-column". You can also perform mathematical operations on
 columns -- use `$<N>` to get the numerical value of column `N`.
 
 Column `0` gives you the number of the point.
-```python
+```gp
 set key right bottom
 plot "datafile.dat" using 0:($0 + 1) title "x"
 ```
@@ -228,7 +228,7 @@ plot "datafile.dat" using 0:($0 + 1) title "x"
 
 
 ##### Style
-```python
+```gp
 ! python3 -c \
 'from math import *; \
  list(map(lambda x: print("{}\t{}".format(x, sin(0.5 * x))), range(20))) \
@@ -255,7 +255,7 @@ particle as a function of time. We thus have three columns in our file:
 * time point `t` in seconds, 
 * `X`-coordinate in cm, and
 * error in `X`.
-```python
+```gp
 ! python3 -c \
 'import numpy as np; \
  \
@@ -298,7 +298,7 @@ Possible data layouts:
 	(x, y, xlow, xhigh, ylow, yhigh)
 ```
 
-```python
+```gp
 plot[8:32] "datafile.dat" u 1:2:3 w yerrorbars \
                           lt 7 ps 1 lc rgb "forest-green" \
                           title "Measured data"
@@ -311,8 +311,8 @@ plot[8:32] "datafile.dat" u 1:2:3 w yerrorbars \
 
 We didn't do the measurements for nothing, right? Let's determine particle's speed! 
 Guess: `position(t) = V * t + X0`. We want to find `V`. This is called a `fit`.
-```python
-position(x) = V * x + X0
+```gp
+position(t) = V * t + X0
 set fit quiet
 set fit errorvariables
 fit position(x) "datafile.dat" u 1:2:3 via V, X0
@@ -332,7 +332,7 @@ of `V` is `3.0`.
 
 We all learned about the "Gaussian" distribution etc. Can we visualize it?
 First of all, we need more points.
-```python
+```gp
 ! python3 -c \
 'import numpy as np; \
  \
@@ -357,7 +357,7 @@ plot[8:32] "datafile.dat" u 1:2 w p \
 ![](images/useful_2.png)
 
 Let's now determine the deviations from the theoretical values.
-```python
+```gp
 set xlabel "Time, t [s]"
 set ylabel "Deviation, dX [cm]"
 plot[8:32][-15:15] "datafile.dat" u 1:($2 - position($1)) w impulses \
@@ -367,7 +367,7 @@ plot[8:32][-15:15] "datafile.dat" u 1:($2 - position($1)) w impulses \
 ![](images/useful_3.png)
 
 I wouldn't call this "clear". A histogram?
-```python
+```gp
 # This genius way of making histograms in Gnuplot is
 # taken from http://stackoverflow.com/a/2538846.
 #
@@ -404,7 +404,7 @@ So we did the following:
 * When `frequency` options sums y-value, the result turns out to be the
   number of points inside a bin.
 
-```python
+```gp
 gauss(x) = A * exp(- (x - mu)**2 / (2 * sigma**2))
 A = 50.0
 mu = 0.1
@@ -426,3 +426,39 @@ print "mu = ", mu, " +/- ", mu_err
 print "sigma = ", sigma, " +/- ", sigma_err
 ```
 ![](images/useful_5.png)
+
+
+
+### The difficult stuff
+
+
+#### LaTeX
+
+Suppose now that we want to include the generated plot in our `LaTeX` document.
+The `epslatex` terminal lets us create `EPS` images that can be included in the
+`PDF`. If you're thinking "I can include a `PNG` file..." don't! `PNG` images 
+don't scale.
+
+Here are the steps:
+* Use `epslatex` terminal;
+* Set output to `*.tex` (substiture `*` by your desired file name);
+* Copy both the `*.tex` and `*.eps` files to where your LaTeX document relies;
+* `\include` the `*.tex` file into your LaTeX document.
+
+```gp
+set term epslatex size 10cm,10cm
+set output "my-plot.tex"
+set xlabel "Deviation, $\\Delta x$ [cm]"
+set ylabel "Number of points, $N$ [1]"
+plot[-15:15][0:55] \
+    "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                   smooth frequency w boxes \
+                   lt 1 lc rgb "forest-green" \
+                   title "Measured", \
+    gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
+             title "$A\\cdot\\exp\\left(\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$ fit"
+set output
+set terminal x11
+```
+
+

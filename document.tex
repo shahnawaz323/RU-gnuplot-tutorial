@@ -1,0 +1,16 @@
+% This is a minimal LaTeX file that shows how to include
+% Gnuplot generated plots in your document.
+
+
+\documentclass{article}
+
+\usepackage{graphics}        % This package is required.
+\usepackage{nopageno}        % Allows to get rid of the page numbers,
+                             % we don't need them here.
+
+\begin{document}
+\begin{center}
+\input{my-plot.tex}          % NB: you include the `.tex` file,
+                             %     but `.eps` file is needed, too!
+\end{center}
+\end{document}
