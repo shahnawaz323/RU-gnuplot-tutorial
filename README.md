@@ -30,7 +30,7 @@ Terminal type set to 'x11'
 gnuplot> 
 ```
 
-It's just like `gp` shell: type in your command, press `ENTER`, and
+It's just like `Python` shell: type in your command, press `ENTER`, and
 your command gets executed!
 
 First of all, here are some useful commands:
@@ -79,7 +79,7 @@ gnuplot> plot[0:2] sin(x)
 -------------------------------------------------------------------------------
 
 ```gp
-gnuplot> plot[0:2][-2:3] sin(x)
+plot[0:2 * pi][-2:3] sin(x)
 ```
 ![](images/sin_ranges_2.png)
 
@@ -168,7 +168,7 @@ more columns separated by `TAB`s. Just like in `gp` a hashtag `#` starts a
 comment. It is common practice to give files of such format the `.dat` extension.
 
 ```gp
-# datafile.dat
+# data_files_1.dat
 #
 ###############################################
 # DO use comments! Otherwise you end up       #
@@ -195,9 +195,9 @@ comment. It is common practice to give files of such format the `.dat` extension
 ! python3 -c \
 'for x in range(10): \
     print("{}\t{}".format(x, 2**-x)) \
-' > datafile.dat
+' > data/data_files_1.dat
 set grid
-plot[-1:10][-0.2:1.2] "datafile.dat" title "Calculated 2^-^x"
+plot[-1:10][-0.2:1.2] "data/data_files_1.dat" title "Calculated 2^-^x"
 ```
 ![](images/data_files_1.png)
 
@@ -206,10 +206,10 @@ plot[-1:10][-0.2:1.2] "datafile.dat" title "Calculated 2^-^x"
 ```gp
 ! python3 -c \
 'for x in range(1,10): \
-    print("{:.2e}\t{:.2e}\t{:.2e}" .format(x, 2**-x, 1./x)) \
-' > datafile.dat
+    print("{:.2e}\t{:.2e}\t{:.2e}".format(x, 2**-x, 1./x)) \
+' > data/data_files_2.dat
 set grid
-plot[-1:10][-0.2:1.2] "datafile.dat" using 1:2 title "2^-^x", \
+plot[-1:10][-0.2:1.2] "data/data_files_2.dat" using 1:2 title "2^-^x", \
                       "" u 1:3 title "1/x", \
                       "" u 1:(1. / ($1 - 2)) tit "1/(x-2)"
 ```
@@ -222,7 +222,7 @@ columns -- use `$<N>` to get the numerical value of column `N`.
 Column `0` gives you the number of the point.
 ```gp
 set key right bottom
-plot "datafile.dat" using 0:($0 + 1) title "x"
+plot "data/data_files_2.dat" using 0:($0 + 1) title "x"
 ```
 ![](images/data_files_3.png)
 
@@ -232,9 +232,9 @@ plot "datafile.dat" using 0:($0 + 1) title "x"
 ! python3 -c \
 'from math import *; \
  list(map(lambda x: print("{}\t{}".format(x, sin(0.5 * x))), range(20))) \
-' > datafile.dat
+' > data/styles_1.dat
 set grid
-plot[-1:20][-8:8] "datafile.dat" with boxes title "boxes", \
+plot[-1:20][-8:8] "data/styles_1.dat" with boxes title "boxes", \
                   "" u 1:(-$2) with impulses title "impulses", \
                   "" u 1:($2 - 2) with lines title "lines", \
                   "" u 1:($2 - 4) with linespoints title "linespoints", \
@@ -258,14 +258,13 @@ particle as a function of time. We thus have three columns in our file:
 ```gp
 ! python3 -c \
 'import numpy as np; \
- \
  mu, sigma = 0, 4; \
  N = 20; \
  errs = np.random.normal(mu, sigma, N); \
  t = np.linspace(10, 30, N); \
  x = 3 * t + 4 + errs; \
  data = np.dstack((t,x,errs))[0]; \
- np.savetxt("datafile.dat", data, delimiter="\t") \
+ np.savetxt("data/styles_2.dat", data, delimiter="\t") \
 '
 set grid
 set key right bottom
@@ -275,8 +274,8 @@ set key right bottom
 # ps ---> pointsize
 set xlabel "Time, t [s]"
 set ylabel "Particle position, X [cm]"
-plot[8:32] "datafile.dat" with p lt 7 ps 1 lc rgb "forest-green" \
-                          title "Measured data"
+plot[8:32] "data/styles_2.dat" with p lt 7 ps 1 lc rgb "forest-green" \
+                               title "Measured data"
 ```
 ![](images/styles_2.png)
 
@@ -299,9 +298,9 @@ Possible data layouts:
 ```
 
 ```gp
-plot[8:32] "datafile.dat" u 1:2:3 w yerrorbars \
-                          lt 7 ps 1 lc rgb "forest-green" \
-                          title "Measured data"
+plot[8:32] "data/styles_2.dat" u 1:2:3 w yerrorbars \
+                               lt 7 ps 1 lc rgb "forest-green" \
+                               title "Measured data"
 ```
 ![](images/styles_3.png)
 
@@ -315,10 +314,10 @@ Guess: `position(t) = V * t + X0`. We want to find `V`. This is called a `fit`.
 position(t) = V * t + X0
 set fit quiet
 set fit errorvariables
-fit position(x) "datafile.dat" u 1:2:3 via V, X0
-plot[8:32] "datafile.dat" u 1:2:3 w yerrorbars \
-                          lt 7 ps 1 lc rgb "forest-green" \
-                          title "Measured data", \
+fit position(x) "data/styles_2.dat" u 1:2:3 via V, X0
+plot[8:32] "data/styles_2.dat" u 1:2:3 w yerrorbars \
+                               lt 7 ps 1 lc rgb "forest-green" \
+                               title "Measured data", \
            position(x) lt 1 lw 2 lc rgb "dark-blue" \
                        title "Approximation"
 print "V = ", V, " +/- ", V_err
@@ -342,15 +341,15 @@ First of all, we need more points.
  t = np.linspace(10, 30, N); \
  x = 3 * t + 4 + errs; \
  data = np.dstack((t,x,errs))[0]; \
- np.savetxt("datafile.dat", data, delimiter="\t") \
+ np.savetxt("data/useful_2.dat", data, delimiter="\t") \
 '
-position(x) = V * x + X0
+position(t) = V * t + X0
 set fit quiet
 set fit errorvariables
-fit position(x) "datafile.dat" u 1:2:3 via V, X0
-plot[8:32] "datafile.dat" u 1:2 w p \
-                          lt 7 ps 0.4 lc rgb "forest-green" \
-                          title "Measured data", \
+fit position(x) "data/useful_2.dat" u 1:2:3 via V, X0
+plot[8:32] "data/useful_2.dat" u 1:2 w p \
+                               lt 7 ps 0.4 lc rgb "forest-green" \
+                               title "Measured data", \
            position(x) lt 1 lw 2 lc rgb "dark-blue" \
                        title "Approximation"
 ```
@@ -360,9 +359,10 @@ Let's now determine the deviations from the theoretical values.
 ```gp
 set xlabel "Time, t [s]"
 set ylabel "Deviation, dX [cm]"
-plot[8:32][-15:15] "datafile.dat" u 1:($2 - position($1)) w impulses \
-                                  lt 7 lw 0.4 lc rgb "forest-green" \
-                                  title "Deviation from theory"
+deviation(t, x) = x - position(t)
+plot[8:32][-15:15] "data/useful_2.dat" u 1:(deviation($1, $2)) w impulses \
+                                       lt 7 lw 0.4 lc rgb "forest-green" \
+                                       title "Deviation from theory"
 ```
 ![](images/useful_3.png)
 
@@ -373,22 +373,20 @@ I wouldn't call this "clear". A histogram?
 #
 set xlabel "Deviation, dX [cm]"
 set ylabel "Number of points, N [1]"
-set style fill transparent solid 0.5 border rgb "black" # We want our boxes in the
-                                                        # histogram filled. Here,
-                                                        # we make them 50% transparent
-                                                        # with solid black border.
-                                                        # See `help set style fill`.
-bin(x, width) = width * floor(x / width) # Rounds `x` down to the nearest
-                                         # multiple of `width`.
-stats "datafile.dat" u 2 name "S" nooutput # Get some statistics about the second
-                                           # column (i.e. x) of our data
-binwidth = 5 * (S_max - S_min) / S_records # Define a bin width base on statistics
-
+# We want our boxes to be filled. Here, we make them 50%
+# transparent with solid black border. For more, see
+# `help set style fill`
+set style fill transparent solid 0.5 border rgb "black" 
+# The following function rounds `x` down to the 
+# nearest multiple of `width`
+bin(x, width) = width * floor(x / width)
+# Get some statistics about the second column of our data
+stats "data/useful_2.dat" u 2 name "S" nooutput
+binwidth = 5 * (S_max - S_min) / S_records 
 # Magic...
-plot[-15:15] "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
-                              smooth frequency w boxes \
-                              lt 1 lc rgb "forest-green" \
-                              notitle
+plot[-15:15] "data/useful_2.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                                 smooth frequency w boxes \
+                                 lt 1 lc rgb "forest-green" notitle
 ```
 ![](images/useful_4.png)
 
@@ -410,15 +408,15 @@ A = 50.0
 mu = 0.1
 sigma = 5.0
 set table ".temp.dat"
-plot "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
-                      smooth frequency
+plot "data/useful_2.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                         smooth frequency
 unset table
 fit gauss(x) ".temp.dat" via A, sigma, mu
 ! rm .temp.dat
-plot[-15:15][0:50] "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
-                                  smooth frequency w boxes \
-                                  lt 1 lc rgb "forest-green" \
-                                  title "Measured distribution", \
+plot[-15:15][0:50] "data/useful_2.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                                       smooth frequency w boxes \
+                                       lt 1 lc rgb "forest-green" \
+                                       title "Measured distribution", \
                    gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
                             title "Gaussian distribution"
 print "A = ", A, " +/- ", A_err
@@ -437,7 +435,7 @@ print "sigma = ", sigma, " +/- ", sigma_err
 Suppose now that we want to include the generated plot in our `LaTeX` document.
 The `epslatex` terminal lets us create `EPS` images that can be included in the
 `PDF`. If you're thinking "I can include a `PNG` file..." don't! `PNG` images 
-don't scale.
+don't scale, your fonts won't match etc.
 
 Here are the steps:
 * Use `epslatex` terminal;
@@ -445,20 +443,149 @@ Here are the steps:
 * Copy both the `*.tex` and `*.eps` files to where your LaTeX document relies;
 * `\include` the `*.tex` file into your LaTeX document.
 
+`LaTeX` document:
+```tex
+% This is a minimal LaTeX file that shows how to include
+% Gnuplot generated plots in your document.
+
+\documentclass{article}
+
+\usepackage{graphics}        % This package is required.
+\usepackage{nopageno}        % Allows to get rid of the page numbers,
+                             % we don't need them here.
+
+\begin{document}
+\begin{center}
+\input{my-plot.tex}          % NB: you include the `.tex` file,
+                             %     but `.eps` file is needed, too!
+\end{center}
+\end{document}
+```
+
+`Gnuplot` script:
 ```gp
 set term epslatex size 10cm,10cm
 set output "my-plot.tex"
 set xlabel "Deviation, $\\Delta x$ [cm]"
 set ylabel "Number of points, $N$ [1]"
 plot[-15:15][0:55] \
-    "datafile.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
-                   smooth frequency w boxes \
-                   lt 1 lc rgb "forest-green" \
-                   title "Measured", \
+    "data/useful_2.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                        smooth frequency w boxes \
+                        lt 1 lc rgb "forest-green" \
+                        title "Measured", \
     gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
              title "$A\\cdot\\exp\\left(\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$ fit"
 set output
 set terminal x11
+! pdflatex document.tex && pdfcrop document.pdf
+! gs -sDEVICE=png16m \
+     -dTextAlphaBits=4 \
+     -r150 \
+     -o "images/difficult_1.png" document-crop.pdf
+! rm -f document.aux document.log document.pdf \
+        document-crop.pdf \
+	my-plot.tex my-plot.eps my-plot-eps-converted-to.pdf
 ```
+![](images/difficult_1.png)
+
+There are a couple of issues with this plot:
+* Our keys overlap;
+* There is no grid on the left of the formulas;
+* We didn't specify the calculated values of `mu` and `sigma`.
+
+Here is a possible fix:
+```gp
+set term epslatex size 10cm,10cm
+set output "my-plot.tex"
+set xlabel "Deviation, $\\Delta x$ [cm]"
+set ylabel "Number of points, $N$ [1]"
+set key width -7.5 height 0.5 spacing 1.5 box # Adjust the spacing between 
+                                              # lines and create a frame
+                                              # around the titles.
+set object 1 rectangle from 4,37.5 to 14.1,44 front
+set label 1   "$\\mu = " . sprintf("%.1f", mu) \
+            . "\\pm " . sprintf("%.1f", ceil(10 * mu_err) / 10.) . "$" \
+	    at 4.2,42 front
+set label 2   "$\\sigma = " . sprintf("%.1f", sigma) \
+            . "\\pm " . sprintf("%.1f", ceil(10 * sigma_err) / 10.) . "$" \
+	    at 4.2,39 front
+plot[-15:15][0:55] \
+    "data/useful_2.dat" u (bin(deviation($1,$2), binwidth)):(1.0) \
+                        smooth frequency w boxes \
+                        lt 1 lc rgb "forest-green" \
+                        title "Measured", \
+    gauss(x) lt 1 lw 2 lc rgb "dark-blue" \
+             title "$A\\cdot\\exp\\left(\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$ fit"
+unset object 1
+unset label 1
+unset label 2
+set output
+set terminal x11
+! pdflatex document.tex && pdfcrop document.pdf
+! gs -sDEVICE=png16m \
+     -dTextAlphaBits=4 \
+     -r150 \
+     -o "images/difficult_2.png" document-crop.pdf
+! rm -f document.aux document.log document.pdf \
+        document-crop.pdf \
+        my-plot.tex my-plot.eps my-plot-eps-converted-to.pdf
+```
+![](images/difficult_2.png)
 
 
+
+### Exercises
+
+Guess what? `Gnuplot` is installed on all university computers except for those at the "Practicum Afdeling"... Fortunately, this problem is easily solved:
+* Go <a href=https://sourceforge.net/projects/gnuplot/files/gnuplot/5.0.5/>here</a>
+* Download `gp505-win64-mingw.zip` or `gp505-win32-mingw.zip`.
+* Unpack the archive.
+* `Gnuplot` binary is `gnuplot/bin/gnuplot.exe`.
+
+__NB__: When you've started `Gnuplot`, type `pwd` to see the present working directory. You can change it using the `cd` command. Example: `cd "C:\Documents\Gnuplot-tutorial"`.
+
+
+##### 0. [__Very easy__]
+Try plotting the following functions:
+
+* `f(x) = x**2`
+* `f(x) = atan(x)`
+* `f(x) = sin(2 * x)**2 * exp(-x)`
+* `f(x, y) = exp(-(x**2 + y**2)) * sin(x**2 + y**2)`. __Hint__: use `splot` in place of `plot`. You may also want to set isosamples to a somewhat higher value (`set isosamples 40,40`) and use a smaller range (`splot[-3:3][-3:3] ...`).
+
+
+##### 1. [__Easy__]
+Create a plot of the following function:
+```
+       / 1 / x**2,   for x >= 1
+f(x) = |
+       \ x,          for 0 <= x < 1
+```
+for `xrange = [-0.1:3]` and `yrange = [-0.1:1]`. __Mind you__: this is a single function, thus there should only be one value for each `x`. __Hint__: Read about the <a href=https://en.wikipedia.org/wiki/%3F:#Conditional_assignment>ternary operator</a> and use the fact that `1/0` means _undefined_ in `Gnuplot`, i.e. `plot 1/0` will plot nothing.
+
+
+##### 2. [__Easy__]
+Solve the following equation numerically: `x = 5 * (1 - exp(-x))` (this equation comes from WC1 in QM1a). __Hint__: `x11` terminal (if you're running Linux) and `wxt` (if you're running Windows) can be used interactively:
+
+* mouse scrolling to move up / down,
+* Shift + mouse scrolling to move left / right,
+* Ctrl + mouse scrolling to zoom in / out,
+* ...
+
+
+##### 3. [__Hard__]
+One of the first exercises in the "Statistical Mechanics" course at Radboud is to check how good the <a href=https://en.wikipedia.org/wiki/Stirling's_approximation>Stirling's approximation</a> (`stirling(n) = n*log(n) - n`) of `log(n!)` is. Please, create a nice plot that illustrates it. Cover all `n`s from 0 to 100. You still need to make sure that your plot shows how bad the Stirling's approximation is for small `n`s. For inspiration, have a look at the following picture:
+
+![](images/exercise_3.png)
+
+__Hint__: read about `multiplot` functionality of `Gnuplot`: `help multiplot`.
+
+
+##### 4. [__Hard__]
+During the "KE17: Bepaling van elementaire lading volgens Millikan" experiment you have to measure the velocity of oil particles with the help of a camera. After using `Tracker` you most likely have something like this:
+
+![](images/exercise_4.png)
+
+Next step is to measure velocities `V1` and `V2` of going up and down respectively. Please, create a script to automate this process. Define a variable `file_name` to make it easier to run this script for multiple files. Make no assumptions about the `x` and `y` ranges or the position of the maximum. Print the velocities and errors to standard output. Also create a `.png` file so that you can check how good the fits are. __Hint__: read about `stats` and `every` commands.
+
+__Bonus__: Generalize your script to account for multiple ups and downs. Average over obtained results. I'd be really impressed if you can figure this one out. __Hint__: read about `do` blocks and `if/else` statements.
