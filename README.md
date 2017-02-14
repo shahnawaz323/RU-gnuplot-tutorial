@@ -533,6 +533,10 @@ set terminal x11
 ![](images/difficult_2.png)
 
 
+### Good websites
+* http://www.gnuplotting.org/
+* http://lowrank.net/gnuplot/index-e.html 
+
 
 ### Exercises
 
